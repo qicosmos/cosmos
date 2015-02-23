@@ -1,4 +1,5 @@
 #pragma once
+
 #include <typeindex>
 #include <iostream>
 #include <type_traits>
@@ -23,7 +24,6 @@ struct Function_Traits<ReturnType(ClassType::*)(Args...) const>
 	struct arg
 	{
 		typedef typename std::tuple_element<i, std::tuple<Args...>>::type type;
-
 	};
 
 	typedef std::function<ReturnType(Args...)> FunType;
@@ -37,23 +37,21 @@ struct IntegerMax;
 template <size_t arg>
 struct IntegerMax<arg> : std::integral_constant<size_t, arg>
 {
-
 };
 
-//获取最大的align
 template <size_t arg1, size_t arg2, size_t... rest>
 struct IntegerMax<arg1, arg2, rest...> : std::integral_constant<size_t, arg1 >= arg2 ? IntegerMax<arg1, rest...>::value :
 	IntegerMax<arg2, rest...>::value >
 {
-
 };
 
+//获取最大的align
 template<typename... Args>
 struct MaxAlign : std::integral_constant<int, IntegerMax<std::alignment_of<Args>::value...>::value>{};
 
 //是否包含某个类型
 template < typename T, typename... List >
-struct Contains : std::true_type {};
+struct Contains;
 
 template < typename T, typename Head, typename... Rest >
 struct Contains<T, Head, Rest...>
@@ -62,91 +60,49 @@ struct Contains<T, Head, Rest...>
 template < typename T >
 struct Contains<T> : std::false_type{};
 
-//获取第一个T的索引位置
-// Forward
-template<typename Type, typename... Types>
-struct GetLeftSize;
+template < typename T, typename... List >
+struct IndexOf;
 
-// Declaration
-template<typename Type, typename First, typename... Types>
-struct GetLeftSize<Type, First, Types...> : GetLeftSize<Type, Types...>
+//int i = IndexOf<int, double, short, char, int, float>::value;
+
+template < typename T, typename Head, typename... Rest >
+struct IndexOf<T, Head, Rest...>
 {
+	enum{ value = IndexOf<T, Rest...>::value+1 };
 };
 
-// Specialized
-template<typename Type, typename... Types>
-struct GetLeftSize<Type, Type, Types...> : std::integral_constant<int, sizeof...(Types)>
+template < typename T, typename... Rest >
+struct IndexOf<T, T, Rest...>
 {
+	enum{ value = 0 };
 };
 
-template<typename Type>
-struct GetLeftSize<Type> : std::integral_constant<int, -1>
+template < typename T >
+struct IndexOf<T>
 {
+	enum{value = -1};
 };
 
-template<typename T, typename... Types>
-struct Index : std::integral_constant<int, sizeof...(Types)-GetLeftSize<T, Types...>::value - 1>{};
-
-//根据索引获取索引位置的类型
-// Forward declaration
 template<int index, typename... Types>
-struct IndexType;
+struct At;
 
 // Declaration
 template<int index, typename First, typename... Types>
-struct IndexType<index, First, Types...> : IndexType<index - 1, Types...>
+struct At<index, First, Types...> //: At<index - 1, Types...>
 {
+	using type = typename At<index - 1, Types...>::type;
 };
 
 // Specialized
-template<typename First, typename... Types>
-struct IndexType<0, First, Types...>
+template<typename T, typename... Types>
+struct At<0, T, Types...>
 {
-	typedef First DataType;
-};
-
-template<typename... Args>
-struct VariantHelper;
-
-template<typename T, typename... Args>
-struct VariantHelper<T, Args...> {
-	inline static void Destroy(type_index id, void * data)
-	{
-		if (id == type_index(typeid(T)))
-			//((T*) (data))->~T();
-			reinterpret_cast<T*>(data)->~T();
-		else
-			VariantHelper<Args...>::Destroy(id, data);
-	}
-
-	inline static void move(type_index old_t, void * old_v, void * new_v)
-	{
-		if (old_t == type_index(typeid(T)))
-			new (new_v)T(std::move(*reinterpret_cast<T*>(old_v)));
-		else
-			VariantHelper<Args...>::move(old_t, old_v, new_v);
-	}
-
-	inline static void copy(type_index old_t, const void * old_v, void * new_v)
-	{
-		if (old_t == type_index(typeid(T)))
-			new (new_v)T(*reinterpret_cast<const T*>(old_v));
-		else
-			VariantHelper<Args...>::copy(old_t, old_v, new_v);
-	}
-};
-
-template<> struct VariantHelper<>  {
-	inline static void Destroy(type_index id, void * data) {  }
-	inline static void move(type_index old_t, void * old_v, void * new_v) { }
-	inline static void copy(type_index old_t, const void * old_v, void * new_v) { }
+	using type = T;
 };
 
 template<typename... Types>
 class Variant
 {
-	typedef VariantHelper<Types...> Helper_t;
-
 	enum
 	{
 		data_size = IntegerMax<sizeof(Types)...>::value,
@@ -156,37 +112,37 @@ class Variant
 	using data_t = typename std::aligned_storage<data_size, align_size>::type;
 public:
 	template<int index>
-	using IndexType = typename IndexType<index, Types...>::DataType;
+	using IndexType = typename At<index, Types...>::type;
 
-	Variant(void) :m_typeIndex(typeid(void)), m_index(-1)
+	Variant(void) :m_typeIndex(typeid(void))
 	{
 	}
 
 	~Variant()
 	{
-		Helper_t::Destroy(m_typeIndex, &m_data);
+		Destroy(m_typeIndex, &m_data);
 	}
 
 	Variant(Variant<Types...>&& old) : m_typeIndex(old.m_typeIndex)
 	{
-		Helper_t::move(old.m_typeIndex, &old.m_data, &m_data);
+		Move(old.m_typeIndex, &old.m_data, &m_data);
 	}
 
 	Variant(const Variant<Types...>& old) : m_typeIndex(old.m_typeIndex)
 	{
-		Helper_t::copy(old.m_typeIndex, &old.m_data, &m_data);
+		Copy(old.m_typeIndex, &old.m_data, &m_data);
 	}
 
 	Variant& operator=(const Variant& old)
 	{
-		Helper_t::copy(old.m_typeIndex, &old.m_data, &m_data);
+		Copy(old.m_typeIndex, &old.m_data, &m_data);
 		m_typeIndex = old.m_typeIndex;
 		return *this;
 	}
 
 	Variant& operator=(Variant&& old)
 	{
-		Helper_t::move(old.m_typeIndex, &old.m_data, &m_data);
+		Move(old.m_typeIndex, &old.m_data, &m_data);
 		m_typeIndex = old.m_typeIndex;
 		return *this;
 	}
@@ -195,11 +151,11 @@ public:
 	class = typename std::enable_if<Contains<typename std::remove_reference<T>::type, Types...>::value>::type>
 		Variant(T&& value) : m_typeIndex(typeid(void))
 	{
-			Helper_t::Destroy(m_typeIndex, &m_data);
+			Destroy(m_typeIndex, &m_data);
 			typedef typename std::remove_reference<T>::type U;
 			new(&m_data) U(std::forward<T>(value));
 			m_typeIndex = type_index(typeid(U));
-	}
+		}
 
 	template<typename T>
 	bool Is() const
@@ -234,13 +190,13 @@ public:
 	template<typename T>
 	int GetIndexOf()
 	{
-		return Index<T, Types...>::value;
+		return IndexOf<T, Types...>::value;
 	}
 
 	template<typename F>
 	void Visit(F&& f)
 	{
-		using T = typename Function_Traits<F>::arg<0>::type;
+		using T = typename Function_Traits<F>::template arg<0>::type;
 		if (Is<T>())
 			f(Get<T>());
 	}
@@ -248,7 +204,7 @@ public:
 	template<typename F, typename... Rest>
 	void Visit(F&& f, Rest&&... rest)
 	{
-		using T = typename Function_Traits<F>::arg<0>::type;
+		using T = typename Function_Traits<F>::template arg<0>::type;
 		if (Is<T>())
 			Visit(std::forward<F>(f));
 		else
@@ -266,7 +222,42 @@ public:
 	}
 
 private:
+	void Destroy(const type_index& index, void * buf)
+	{
+		std::initializer_list<int>{(Destroy<Types>(index, buf), 0)...};
+	}
+
+	template<typename T>
+	void Destroy(const type_index& id, void* data)
+	{
+		if (id == type_index(typeid(T)))
+			reinterpret_cast<T*>(data)->~T();
+	}
+
+	void Move(const type_index& old_t, void* old_v, void* new_v) 
+	{
+		std::initializer_list<int>{(Move<Types>(old_t, old_v, new_v), 0)...};
+	}
+
+	template<typename T>
+	void Move(const type_index& old_t, void* old_v, void* new_v)
+	{
+		if (old_t == type_index(typeid(T)))
+			new (new_v)T(std::move(*reinterpret_cast<T*>(old_v)));
+	}
+
+	void Copy(const type_index& old_t, void* old_v, void* new_v)
+	{
+		std::initializer_list<int>{(Copy<Types>(old_t, old_v, new_v), 0)...};
+	}
+
+	template<typename T>
+	void Copy(const type_index& old_t, void* old_v, void* new_v)
+	{
+		if (old_t == type_index(typeid(T)))
+			new (new_v)T(*reinterpret_cast<const T*>(old_v));
+	}
+private:
 	data_t m_data;
 	std::type_index m_typeIndex;//类型ID
 };
-
