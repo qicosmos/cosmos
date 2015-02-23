@@ -155,7 +155,7 @@ public:
 			typedef typename std::remove_reference<T>::type U;
 			new(&m_data) U(std::forward<T>(value));
 			m_typeIndex = type_index(typeid(U));
-		}
+	}
 
 	template<typename T>
 	bool Is() const
