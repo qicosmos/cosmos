@@ -224,11 +224,11 @@ public:
 private:
 	void Destroy(const type_index& index, void * buf)
 	{
-		std::initializer_list<int>{(Destroy<Types>(index, buf), 0)...};
+		std::initializer_list<int>{(Destroy0<Types>(index, buf), 0)...};
 	}
 
 	template<typename T>
-	void Destroy(const type_index& id, void* data)
+	void Destroy0(const type_index& id, void* data)
 	{
 		if (id == type_index(typeid(T)))
 			reinterpret_cast<T*>(data)->~T();
@@ -236,11 +236,11 @@ private:
 
 	void Move(const type_index& old_t, void* old_v, void* new_v) 
 	{
-		std::initializer_list<int>{(Move<Types>(old_t, old_v, new_v), 0)...};
+		std::initializer_list<int>{(Move0<Types>(old_t, old_v, new_v), 0)...};
 	}
 
 	template<typename T>
-	void Move(const type_index& old_t, void* old_v, void* new_v)
+	void Move0(const type_index& old_t, void* old_v, void* new_v)
 	{
 		if (old_t == type_index(typeid(T)))
 			new (new_v)T(std::move(*reinterpret_cast<T*>(old_v)));
@@ -248,11 +248,11 @@ private:
 
 	void Copy(const type_index& old_t, void* old_v, void* new_v)
 	{
-		std::initializer_list<int>{(Copy<Types>(old_t, old_v, new_v), 0)...};
+		std::initializer_list<int>{(Copy0<Types>(old_t, old_v, new_v), 0)...};
 	}
 
 	template<typename T>
-	void Copy(const type_index& old_t, void* old_v, void* new_v)
+	void Copy0(const type_index& old_t, void* old_v, void* new_v)
 	{
 		if (old_t == type_index(typeid(T)))
 			new (new_v)T(*reinterpret_cast<const T*>(old_v));
