@@ -180,12 +180,14 @@ public:
 	Variant& operator=(const Variant& old)
 	{
 		Helper_t::copy(old.m_typeIndex, &old.m_data, &m_data);
+		m_typeIndex = old.m_typeIndex;
 		return *this;
 	}
 
 	Variant& operator=(Variant&& old)
 	{
 		Helper_t::move(old.m_typeIndex, &old.m_data, &m_data);
+		m_typeIndex = old.m_typeIndex;
 		return *this;
 	}
 
@@ -197,7 +199,7 @@ public:
 			typedef typename std::remove_reference<T>::type U;
 			new(&m_data) U(std::forward<T>(value));
 			m_typeIndex = type_index(typeid(U));
-		}
+	}
 
 	template<typename T>
 	bool Is() const
