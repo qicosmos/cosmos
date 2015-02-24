@@ -6,6 +6,8 @@
 //function/lambda
 //成员函数
 //函数对象
+
+//转换为std::function和函数指针 
 template<typename T>
 struct function_traits;
 
@@ -17,6 +19,8 @@ public:
 	enum { arity = sizeof...(Args) };
 	typedef Ret function_type(Args...);
 	typedef Ret return_type;
+	using stl_function_type = std::function<function_type>;
+	typedef Ret(*pointer)(Args...);
 
 	template<size_t I>
 	struct args
@@ -47,3 +51,21 @@ FUNCTION_TRAITS(const volatile)
 //函数对象
 template<typename Callable>
 struct function_traits : function_traits<decltype(&Callable::operator())>{};
+
+template <typename Function>
+typename function_traits<Function>::stl_function_type to_function(const Function& lambda)
+{
+	return static_cast<function_traits<Function>::stl_function_type>(lambda);
+}
+
+template <typename Function>
+typename function_traits<Function>::stl_function_type to_function(Function&& lambda)
+{
+	return static_cast<function_traits<Function>::stl_function_type>(std::forward<Function>(lambda));
+}
+
+template <typename Function>
+typename function_traits<Function>::pointer to_function_pointer(const Function& lambda)
+{
+	return static_cast<typename function_traits<Function>::pointer>(lambda);
+}
