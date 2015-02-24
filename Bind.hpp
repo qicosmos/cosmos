@@ -19,13 +19,10 @@ struct Placeholder
 {
 };
 
-Placeholder<1> _1; Placeholder<2> _2; Placeholder<3> _3; Placeholder<4> _4; Placeholder<5> 
-
-_5; Placeholder<6> _6; Placeholder<7> _7;
-Placeholder<8> _8; Placeholder<9> _9; Placeholder<10> _10;
+Placeholder<1> _1; Placeholder<2> _2; Placeholder<3> _3; Placeholder<4> _4; Placeholder<5> _5; 
+Placeholder<6> _6; Placeholder<7> _7;Placeholder<8> _8; Placeholder<9> _9; Placeholder<10> _10;
 
 // result type traits
-
 template <typename F>
 struct result_traits : result_traits<decltype(&F::operator())> {};
 
@@ -102,8 +99,7 @@ struct Bind_t
 public:
     template<class F, class... BArgs>
     Bind_t(F& f,  BArgs&... args) : m_func(f), m_args(args...)
-    {    
-
+    {
     }
 
     template<typename F, typename... BArgs>
@@ -114,7 +110,6 @@ public:
     result_type operator()(CArgs&&... args)
     {
         return do_call(MakeIndexes<std::tuple_size<ArgType>::value>::type(), 
-
 std::forward_as_tuple(std::forward<CArgs>(args)...));
     }
 
@@ -122,7 +117,6 @@ std::forward_as_tuple(std::forward<CArgs>(args)...));
     result_type do_call(IndexTuple< Indexes... >& in, ArgTuple& argtp)
     {
         return simple::invoke<result_type>(m_func, select(std::get<Indexes>(m_args), 
-
 argtp)...);
         //return m_func(select(std::get<Indexes>(m_args), argtp)...);
     }
