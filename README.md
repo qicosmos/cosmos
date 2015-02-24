@@ -1,3 +1,3 @@
 cosmos
 ======
-hello world
+桃李不言下自成蹊。
