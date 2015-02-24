@@ -2,8 +2,6 @@
 template<typename T>
 struct Lazy
 {
-    Lazy(){}
-
     template <typename Func, typename... Args>
     Lazy(Func& f, Args && ... args)
     {
