@@ -9,14 +9,14 @@ public:
 	Timer() : m_begin(high_resolution_clock::now()) {}
 	void reset() { m_begin = high_resolution_clock::now(); }
 
-	////默认输出毫秒
-	//int64_t elapsed() const
-	//{
-	//	return duration_cast<chrono::milliseconds>(high_resolution_clock::now() - m_begin).count();
-	//}
+	//默认输出毫秒
+	int64_t elapsed() const
+	{
+		return duration_cast<chrono::milliseconds>(high_resolution_clock::now() - m_begin).count();
+	}
 
 	//默认输出秒
-	double elapsed() const
+	double elapsed_second() const
 	{
 		return duration_cast<duration<double>>(high_resolution_clock::now() - m_begin).count();
 	}
