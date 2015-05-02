@@ -8,8 +8,8 @@ struct Any
 	Any(Any && that) : m_ptr(std::move(that.m_ptr)), m_tpIndex(that.m_tpIndex) {}
 
 	//创建智能指针时，对于一般的类型，通过std::decay来移除引用和cv符，从而获取原始类型
-	template<typename U> Any(U && value) : m_ptr(new Derived < typename std::decay<U>::type>(forward<U>(value))),
-		m_tpIndex(type_index(typeid(typename std::remove_pointer<U>::type))){}
+	template<typename U, class = typename std::enable_if<!std::is_same<typename std::decay<U>::type, Any>::value, U>::type> Any(U && value) : m_ptr(new Derived < typename std::decay<U>::type>(forward<U>(value))),
+		m_tpIndex(type_index(typeid(typename std::decay<U>::type))){}
 
 	bool IsNull() const { return !bool(m_ptr); }
 
