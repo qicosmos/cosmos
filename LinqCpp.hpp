@@ -242,7 +242,7 @@ public:
 
 	//当条件不满足时，获取后面所有的元素
 	template<typename F>
-	auto skipwhile(const F& f) const -> LinqCpp<iterator_range < decltype(begin())>>
+	auto skipwhile(const F& f) const -> LinqCpp<iterator_range < decltype(boost::make_iterator_range(std::find_if_not(begin(), end(), f), end()))>>
 	{
 		return LinqCpp(boost::make_iterator_range(std::find_if_not(begin(), end(), f), end()));
 	}
