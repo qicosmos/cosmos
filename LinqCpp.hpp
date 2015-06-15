@@ -400,11 +400,11 @@ void TestLinqCpp()
 	auto ct = from(v).count();
 	auto sm = from(v).sum();
 	auto av = from(v).average();
-	auto min = from(v).min();
-	auto max = from(v).max();
+	auto min = from(v).Min();
+	auto max = from(v).Max();
 
 	//元素操作符
-	auto elm = from(vct).elementat(2);
+	auto elm = from(v).elementat(2);
 	//将输出2
 
 	//反转
@@ -412,12 +412,12 @@ void TestLinqCpp()
 
 	//区间操作
 	auto tk = from(v).take(3).to_vector();
-	auto tkw = from(vct).takewhile([](int a){return a > 3; }); //遇到不满足条件的就返回，从开始到终止时的范围
+	auto tkw = from(v).takewhile([](int a){return a > 3; }); //遇到不满足条件的就返回，从开始到终止时的范围
 	
-	auto skp = from(vct).skip(3);
-	auto skpw = from(vct).skipwhile([](int a){return a < 3; }).to_vector(); //不满足条件到end范围
+	auto skp = from(v).skip(3);
+	auto skpw = from(v).skipwhile([](int a){return a < 3; }).to_vector(); //不满足条件到end范围
 
-	auto step = from(vct).step(2); //以步长为2组成新序列
+	auto step = from(v).step(2); //以步长为2组成新序列
 
 	//取map中的键组成新的序列
 	auto keys = from(mymap).keys();
