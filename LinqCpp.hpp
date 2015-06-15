@@ -132,13 +132,13 @@ public:
 		return aggregate(std::plus<value_type>());
 	}
 
-	auto count() const -> value_type
+	auto count() const -> decltype(std::distance(begin(), end()))
 	{
 		return std::distance(begin(), end());
 	}
 
 	template<typename F>
-	auto count(const F& f) const -> value_type
+	auto count(const F& f) const -> decltype(std::count_if(begin(), end(), f))
 	{
 		return std::count_if(begin(), end(), f);
 	}
