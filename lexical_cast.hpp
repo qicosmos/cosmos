@@ -22,7 +22,12 @@ namespace detail
 	template <typename From>
 	struct Converter<int, From>
 	{
-		static int convert(const From& from)
+		static int convert(const string& from)
+		{
+			return std::atoi(from.c_str());
+		}
+
+		static int convert(const char* from)
 		{
 			return std::atoi(from);
 		}
@@ -31,7 +36,12 @@ namespace detail
 	template <typename From>
 	struct Converter<long, From>
 	{
-		static long convert(const From& from)
+		static long convert(const string& from)
+		{
+			return std::atol(from.c_str());
+		}
+
+		static long convert(const char* from)
 		{
 			return std::atol(from);
 		}
@@ -40,7 +50,12 @@ namespace detail
 	template <typename From>
 	struct Converter<long long, From>
 	{
-		static long long convert(const From& from)
+		static long long convert(const string& from)
+		{
+			return std::atoll(from.c_str());
+		}
+
+		static long long convert(const char* from)
 		{
 			return std::atoll(from);
 		}
@@ -49,7 +64,12 @@ namespace detail
 	template <typename From>
 	struct Converter<double, From>
 	{
-		static double convert(const From& from)
+		static double convert(const string& from)
+		{
+			return std::atof(from.c_str());
+		}
+
+		static double convert(const char* from)
 		{
 			return std::atof(from);
 		}
@@ -58,7 +78,12 @@ namespace detail
 	template <typename From>
 	struct Converter<float, From>
 	{
-		static float convert(const From& from)
+		static float convert(const string& from)
+		{
+			return (float)std::atof(from.c_str());
+		}
+
+		static float convert(const char* from)
 		{
 			return (float)std::atof(from);
 		}
