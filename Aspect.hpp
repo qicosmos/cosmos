@@ -53,7 +53,7 @@ struct Aspect : NonCopyable
 private:
 	Func m_func; //被织入的函数
 };
-template<typenameT> using identity_t = T;
+template<typename T> using identity_t = T;
 
 //AOP的辅助函数，简化调用
 template<typename... AP, typename... Args, typename Func>
