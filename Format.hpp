@@ -144,7 +144,7 @@ inline string format(char* src, Args... args)
 　　　　　　last = p - original;
 
 　　　　　　memcpy(buf, original, last);
-
+            break;
 　　　　　}　　
 
         p++;
