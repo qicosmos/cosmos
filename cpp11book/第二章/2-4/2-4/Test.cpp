@@ -1,7 +1,6 @@
 #include <iostream>
 
-template <typename T>
-void PrintT(const T& t)
+void PrintT(int& t)
 {
 	std::cout << "lvalue" << std::endl;
 }
