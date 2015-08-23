@@ -148,11 +148,11 @@ public:
 	}
 
 	template <class T,
-	class = typename std::enable_if<Contains<typename std::remove_reference<T>::type, Types...>::value>::type>
+	class = typename std::enable_if<Contains<typename std::decay<T>::type, Types...>::value>::type>
 		Variant(T&& value) : m_typeIndex(typeid(void))
 	{
 			Destroy(m_typeIndex, &m_data);
-			typedef typename std::remove_reference<T>::type U;
+			typedef typename std::decay<T>::type U;
 			new(&m_data) U(std::forward<T>(value));
 			m_typeIndex = type_index(typeid(U));
 	}
