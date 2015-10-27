@@ -1,3 +1,4 @@
+#pragma once
 #include <Optional.hpp>
 template<typename T>
 struct Lazy

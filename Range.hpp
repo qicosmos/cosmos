@@ -1,3 +1,4 @@
+#pragma once
 template<typename value_t>
 class RangeImpl
 {

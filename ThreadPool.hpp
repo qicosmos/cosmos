@@ -1,9 +1,10 @@
+#pragma once
 #include<list>
 #include<thread>
 #include<functional>
 #include<memory>
 #include <atomic>
-#include"SyncQueue.hpp"
+#include "SyncQueue.hpp"
 
 const int MaxTaskCount = 100;
 class ThreadPool

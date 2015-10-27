@@ -1,3 +1,4 @@
+#pragma once
 #define HAS_MEMBER(member)\
 template<typename T, typename... Args>struct has_member_##member\
 {\
