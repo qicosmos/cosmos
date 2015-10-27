@@ -1,3 +1,4 @@
+#pragma once
 #include <boost/algorithm/minmax_element.hpp>
 #include <boost/iterator/zip_iterator.hpp>
 #include <boost/range.hpp>
