@@ -15,7 +15,7 @@ class ObjectPool : NonCopyable
 public:
 	//默认创建多少个对象
 	template<typename... Args>
-	void Init(size_tnum, Args&&... args)
+	void Init(size_t num, Args&&... args)
 	{
 		if (num<= 0 || num> MaxObjectNum)
 			throw std::logic_error("object num out of range.");
