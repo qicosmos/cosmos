@@ -31,7 +31,7 @@ private:
         Singleton(void);
         virtual ~Singleton(void);
         Singleton(const Singleton&);
-        Singleton& operator = (const Singleton&);
+        Singleton& operator=(const Singleton&);
 private:
     static T* m_pInstance;
 };

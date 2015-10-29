@@ -1,13 +1,13 @@
-#include<string>
-#include<functional>
-#include<memory>
-#include<map>
+#include <string>
+#include <functional>
+#include <memory>
+#include <map>
 #include "NonCopyable.hpp"
-usingnamespace std;
+using namespace std;
 
 const int MaxObjectNum = 10;
 
-template<typenameT>
+template<typename T>
 class ObjectPool : NonCopyable
 {
 	template<typename... Args>
@@ -23,7 +23,7 @@ public:
 		auto constructName = typeid(Constructor<Args...>).name(); //不区分引用
 		for (size_t i = 0; i <num; i++)
 		{
-			m_object_map.emplace(constructName, shared_ptr<T>(newT(std::forward<Args>(args)...), [this, constructName](T* p) //删除器中不直接删除对象，而是回收到对象池中，以供下次使用
+			m_object_map.emplace(constructName, shared_ptr<T>(new T(std::forward<Args>(args)...), [this, constructName](T* p) //删除器中不直接删除对象，而是回收到对象池中，以供下次使用
 			{
 				m_object_map.emplace(std::move(constructName), std::shared_ptr<T>(p));
 			}));
