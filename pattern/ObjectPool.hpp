@@ -1,13 +1,13 @@
-#include<string>
-#include<functional>
-#include<memory>
-#include<map>
+#include <string>
+#include <functional>
+#include <memory>
+#include <map>
 #include "NonCopyable.hpp"
-usingnamespace std;
+using namespace std;
 
 const int MaxObjectNum = 10;
 
-template<typenameT>
+template<typename T>
 class ObjectPool : NonCopyable
 {
 	template<typename... Args>
