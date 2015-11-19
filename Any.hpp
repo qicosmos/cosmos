@@ -1,9 +1,12 @@
 #pragma once
 #include <memory>
 #include <typeindex>
+#include <exception>
+#include <iostream>
+
 struct Any
 {
-	Any(void) : m_tpIndex(std::type_index(typeid(void))){}
+	Any(void) : m_tpIndex(std::type_index(typeid(void))) {}
 	Any(const Any& that) : m_ptr(that.Clone()), m_tpIndex(that.m_tpIndex) {}
 	Any(Any && that) : m_ptr(std::move(that.m_ptr)), m_tpIndex(that.m_tpIndex) {}
 
@@ -15,7 +18,7 @@ struct Any
 
 	template<class U> bool Is() const
 	{
-		return m_tpIndex == type_index(typeid(U));
+		return m_tpIndex == std::type_index(typeid(U));
 	}
 
 	//将Any转换为实际的类型
@@ -24,8 +27,8 @@ struct Any
 	{
 		if (!Is<U>())
 		{
-			cout << "can not cast " << typeid(U).name() << " to " << m_tpIndex.name() << endl;
-			throw bad_cast();
+			std::cout << "can not cast " << typeid(U).name() << " to " << m_tpIndex.name() << std::endl;
+			throw std::logic_error{"bad cast"};
 		}
 
 		auto derived = dynamic_cast<Derived<U>*> (m_ptr.get());
