@@ -30,6 +30,22 @@ public:
         pool_.pop_back();
         return std::move(ptr);
     }
+    
+    std::shared_ptr<T> get_shared()
+    {
+        if (pool_.empty())
+        {
+            throw std::logic_error("no more object");
+        }
+
+        auto pin = std::unique_ptr<T>(std::move(pool_.back()));
+        pool_.pop_back();
+
+        return std::shared_ptr<T>(pin.release(), [this](T* t)   
+        {  
+            pool_.push_back(std::unique_ptr<T>(t));  
+        }); 
+    }
 
     bool empty() const
     {
