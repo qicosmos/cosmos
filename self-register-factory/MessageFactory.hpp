@@ -57,4 +57,4 @@ private:
 std::map<std::string, std::function<Message*()>> factory::map_;
 
 #define REGISTER_MESSAGE_VNAME(T) reg_msg_##T##_
-#define REGISTER_MESSAGE(T, key, ...) static factory::register_t<T> REGISTER_MESSAGE_VNAME(T)(key, __VA_ARGS__);
+#define REGISTER_MESSAGE(T, key, ...) static factory::register_t<T> REGISTER_MESSAGE_VNAME(T)(key, ##__VA_ARGS__);
