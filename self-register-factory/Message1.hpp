@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Message.hpp"
 #include "MsgFactory.hpp"
+#include "Message.hpp"
 
 class Message1 : public Message
 {
