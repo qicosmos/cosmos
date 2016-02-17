@@ -5,6 +5,9 @@
 #include <memory>
 #include "Message.hpp"
 
+/*
+you can change the key type as integer.
+*/
 struct factory
 {
 	template<typename T>
