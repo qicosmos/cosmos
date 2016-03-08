@@ -1,10 +1,10 @@
 #include <functional>
 #include <type_traits>
-template<typename R = void>
+template<typename Ret = void>
 struct CommCommand
 {
 private:
-	std::function < R()> m_f;
+	std::function < Ret()> m_f;
 
 public:
 	//接受可调用对象的函数包装器
@@ -28,7 +28,7 @@ public:
 		m_f = [&, f]{return (*p.*f)(args...); };
 	}
 
-	R Excecute()
+	Ret Excecute()
 	{
 		return m_f();
 	}
