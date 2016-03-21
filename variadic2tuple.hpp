@@ -1,16 +1,16 @@
 
 #define MAKE_PAIR(text) std::pair<std::string, decltype(text)>{#text, text}
 
-template<typename T, typename T1, typename... Args>
-constexpr static inline auto apply(T const & t, const T1& first, const Args&... args)
-{
-	return apply(std::tuple_cat(t, std::make_tuple(MAKE_PAIR(first))), args...);
-}
-
 template<typename T>
 constexpr static inline auto apply(T const & args)
 {
 	return args;
+}
+
+template<typename T, typename T1, typename... Args>
+constexpr static inline auto apply(T const & t, const T1& first, const Args&... args)
+{
+	return apply(std::tuple_cat(t, std::make_tuple(MAKE_PAIR(first))), args...);
 }
 
 #define META(...) auto meta(){ return apply(std::tuple<>(), __VA_ARGS__); }
