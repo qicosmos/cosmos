@@ -45,7 +45,7 @@ std::array<std::string, N> split(const std::string& s, const char delimiter)
 		if (end == std::string::npos)
 			break;
 
-		start = end + 1;
+		start = end + 2;
 		end = s.find_first_of(delimiter, start);
 	}
 
