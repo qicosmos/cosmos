@@ -53,15 +53,15 @@ std::array<std::string, N> split(const std::string& s, const char delimiter)
 }
 
 template<unsigned N, typename T>
-constexpr static inline auto make(const std::array<std::string, N>&ar, unsigned index, T const & args)
+constexpr static inline auto make(const std::array<std::string, N>&ar, unsigned index, T& args)
 {
 	return args;
 }
 
 template<unsigned N, typename T, typename T1, typename... Args>
-constexpr static inline auto make(const std::array<std::string, N>&ar, unsigned index, T const & t, const T1& first, const Args&... args)
+constexpr static inline auto make(const std::array<std::string, N>&ar, unsigned index, T const & t, T1& first, Args&... args)
 {
-	return make(ar, index+1, std::tuple_cat(t, std::make_tuple(std::make_pair(ar[index], first))), args...);
+	return make(ar, index + 1, std::tuple_cat(t, std::make_tuple(std::pair<std::string, T1&>(ar[index], first))), args...);
 }
 
 #define VA_ARGS_NUM(...) std::tuple_size<decltype(std::make_tuple(__VA_ARGS__))>::value
