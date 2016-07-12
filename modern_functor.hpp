@@ -365,3 +365,97 @@ inline auto make(P&&... args) -> T {
 	return std::make_shared<typename T::element_type>(std::forward<P>(args)...);
 }
 
+/*test code
+void test()
+{
+	using namespace std;
+	
+	tfn_print print;
+	print(5);
+	print("hello");
+
+	// let's call function by providing tuple
+
+	auto f = [](int x, int y, int z) { return x + y - z; };
+	auto params = make_tuple(1, 2, 3);
+	auto res = tuple_apply(f, params);
+	print(res);
+
+
+	// combine tuple using overloaded operators and apply function
+	auto list = make_tuple(1, 4);
+	auto res2 = tuple_apply(f, list << 4);
+	print(res2);
+
+	// ok, now i want piped templates
+	tfn_count count;
+	vector<string> slist = { "one", "two", "three" };
+	slist | count | print;
+
+
+	// piping....
+	auto ucount = fn_to_curry_functor(count);
+	auto uprint = fn_to_curry_functor(print);
+	//slist | ucount | print;
+
+	// currying....
+	auto uf = fn_to_curry_functor(f);
+	auto uf1 = uf << 1;
+	auto uf2 = uf1 << 2 << 5;
+	uf2() | print;
+	auto ff1 = uf << 4 << 6 << 1;
+	auto ff2 = uf >> 4 >> 6 >> 1;
+	1 | (uf << 4 << 6) | print; // 4+6-1 = 9
+
+	3 | (uf >> 6 >> 7) | print; // 3+6-7 = 2
+
+
+								// count sum length of all strings in the list
+
+	slist | (map >> count) | (reduce >> 0 >> sum) | (uprint << "Total: " >> " chars");
+
+	slist | (reduce >> string("") >> sum) | (uprint << "All: ");
+
+	vector<int>{1, 2, 3} | (reduce >> 0 >> sum) | (uprint << "Sum: ");
+
+	// Some real objects...
+	vector<User> users{ make<User>(1, "John", 0), make<User>(2, "Bob", 1), make<User>(3, "Max", 1) };
+
+	users | (filter >> (is_name_equal >> "Bob")) | ucount | uprint;
+
+	vector<int>{1, 2, 6} | (filter >> [](auto i) { return i % 2 == 0; }) | ucount | uprint;
+
+	// Produce XML
+	users | map >> [](User u) { return u->name; } | map >> (xmlWrap << "name") | reduce >> string("") >> sum | xmlWrap << "users" | print;
+
+	// Use functional chain:
+	auto f1 = [](int x) { return x + 3; };
+	auto f2 = [](int x) { return x * 2; };
+	auto f3 = [](int x) { return (double)x / 2.0; };
+	auto f4 = [](double x) { std::stringstream ss; ss << x; return ss.str(); };
+	auto f5 = [](string s) { return "Result: " + s; };
+	auto testChain = fn_chain<>() | f1 | f2 | f3 | f4 | f5;
+	testChain(3) | print;
+
+	auto countUsers = fn_chain<>() | (map >> (find_any << users << is_id_equal)) | (filter >> is_not_null) | ucount;
+	vector<int>{1, 2, 6} | countUsers | (uprint << "count of users: ");
+
+
+	// Ok, pipe through monadic execution!
+
+	maybe<int>(2) | (find_any << users << is_id_equal) | [](User u) { return u->name; } | [](string s) { LOG << s << NL; return s; };
+
+	(maybe<int>(6) | (find_any << users << is_id_equal) | [](User u) { return u->name; }).getOr("Not found") | (uprint << "Found user: ");
+
+	just(vector<int>{1, 2, 6}) | countUsers | [&](int count) { count | (uprint << "Count: "); return count; };
+
+	(just(vector<int>{1, 2, 6}) | countUsers || -1) | (uprint << "Count:");
+	//auto fn1 = fn_chain<>() |filter([](int x) { return (x % 2 == 0); }) | map([](auto x) { return x + 1; });
+	//auto enumerateStrings = (tr | tenumerate() | tmap([](int n, string s) { return s + " " +
+	//	std::to_string(n); }))(output_rf);
+	//auto result = fn_tr_reduce(vector<string>(), enumerateStrings, vector<string>{"a", "b", "c"});
+
+	//vector<int> input{ 1,2,3,4,5,6,7 };
+	//auto result = input | into_vector << (tr | tfilter([](int x) { return (x % 2 == 0); }) | tmap([](auto x) { return x + 1; }));
+}
+*/
