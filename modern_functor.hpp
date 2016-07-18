@@ -39,38 +39,38 @@ inline auto tuple_apply(const F& f, const std::tuple<Args...>& tp) -> decltype(f
 
 // end of apply tuple
 // universal function / extended function wrapper !
-template<typename F, typename Left = std::tuple<>, typename Right = std::tuple<>>
+template<typename F, typename Before = std::tuple<>, typename After = std::tuple<>>
 class curry_functor {
 private:
 	F f_;                            ///< main functor
-	Left left_;             ///< curryed arguments
-	Right right_;               ///< curryed arguments
+	Before before_;             ///< curryed arguments
+	After after_;               ///< curryed arguments
 	
 public:
 
-	curry_functor(F && f) : f_(std::forward<F>(f)), left_(std::tuple<>()), right_(std::tuple<>()) {}
-	curry_functor(const F & f, const Left & left, const Right & right) : f_(f), left_(left), right_(right) {}
+	curry_functor(F && f) : f_(std::forward<F>(f)), before_(std::tuple<>()), after_(std::tuple<>()) {}
+	curry_functor(const F & f, const Before & before, const After & after) : f_(f), before_(before), after_(after) {}
 
 	template <typename... Args>
-	auto operator()(Args... args) const -> decltype(tuple_apply(f_, std::tuple_cat(left_, make_tuple(args...), right_)))
+	auto operator()(Args... args) const -> decltype(tuple_apply(f_, std::tuple_cat(before_, make_tuple(args...), after_)))
 	{
 		// execute via tuple
-		return tuple_apply(f_, std::tuple_cat(left_, make_tuple(std::forward<Args>(args)...), right_));
+		return tuple_apply(f_, std::tuple_cat(before_, make_tuple(std::forward<Args>(args)...), after_));
 	}
 
 	// curry
 	template <typename T>
-	auto curry_left(T && param) const
+	auto curry_before(T && param) const
 	{
-		using RealLeft = decltype(std::tuple_cat(left_, std::make_tuple(param)));
-		return curry_functor<F, RealLeft, Right>(f_, std::tuple_cat(left_, std::make_tuple(std::forward<T>(param))), right_);
+		using RealBefore = decltype(std::tuple_cat(before_, std::make_tuple(param)));
+		return curry_functor<F, RealBefore, After>(f_, std::tuple_cat(before_, std::make_tuple(std::forward<T>(param))), after_);
 	}
 
 	template <typename T>
-	auto curry_right(T && param) const
+	auto curry_after(T && param) const
 	{
-		using RealRight = decltype(std::tuple_cat(right_, std::make_tuple(param)));
-		return curry_functor<F, Left, RealRight>(f_, left_, std::tuple_cat(right_, std::make_tuple(std::forward<T>(param))));
+		using RealAfter = decltype(std::tuple_cat(after_, std::make_tuple(param)));
+		return curry_functor<F, Before, RealAfter>(f_, before_, std::tuple_cat(after_, std::make_tuple(std::forward<T>(param))));
 	}
 };
 
@@ -80,23 +80,23 @@ auto fn_to_curry_functor(F && f)
 	return curry_functor<F>(std::forward<F>(f));
 }
 
-// left curry by << operator
+// before curry by << operator
 template<typename UF, typename Arg>
-auto operator<<(const UF & f, Arg && arg) -> decltype(f.template curry_left<Arg>(std::forward<Arg>(arg)))
+auto operator<<(const UF & f, Arg && arg) -> decltype(f.template curry_before<Arg>(std::forward<Arg>(arg)))
 {
-	return f.template curry_left<Arg>(std::forward<Arg>(arg));
+	return f.template curry_before<Arg>(std::forward<Arg>(arg));
 }
 
-// right curry by >> operator
+// after curry by >> operator
 template<typename UF, typename Arg>
-auto operator>>(const UF & f, Arg && arg) -> decltype(f.template curry_right<Arg>(std::forward<Arg>(arg)))
+auto operator>>(const UF & f, Arg && arg) -> decltype(f.template curry_after<Arg>(std::forward<Arg>(arg)))
 {
-	return f.template curry_right<Arg>(std::forward<Arg>(arg));
+	return f.template curry_after<Arg>(std::forward<Arg>(arg));
 }
 
 // OBJECT from TEMPLATE function!
 // Template as first-class citizen
-#define define_functor(func_name) class tfn_##func_name {\
+#define define_functor_type(func_name) class tfn_##func_name {\
 public: template <typename... Args> auto operator()(Args&&... args) const ->decltype(func_name(std::forward<Args>(args)...))\
 { return func_name(std::forward<Args>(args)...); } }
 
@@ -108,7 +108,7 @@ tuple<OldArgs..., NewArg> operator<<(const tuple<OldArgs...> & t, const NewArg& 
 }
 
 template<typename T, class F>
-auto operator|(T&& param, const F& f) -> decltype(f(param))  // typename std::result_of<F(T)>::type
+auto operator|(T&& param, const F& f) -> decltype(f(std::forward<T>(param)))  // typename std::result_of<F(T)>::type
 {
 	return f(std::forward<T>(param));
 }
@@ -126,8 +126,8 @@ int count(const T& container)
 	return container.size();
 }
 
-define_functor(print);
-define_functor(count);
+define_functor_type(print);
+define_functor_type(count);
 
 /// Universal operators
 
@@ -171,7 +171,7 @@ T fn_sum(T arg, Args... args)
 	return result;
 }
 
-#define make_globle_curry_functor(NAME, F) define_functor(F); const auto NAME = fn_to_curry_functor(tfn_##F());
+#define make_globle_curry_functor(NAME, F) define_functor_type(F); const auto NAME = fn_to_curry_functor(tfn_##F());
 
 make_globle_curry_functor(map, fn_map);
 make_globle_curry_functor(reduce, fn_reduce);
@@ -268,7 +268,7 @@ inline auto operator|(fn_chain<FNs...> && chain, F&& f)
 	return chain.add(std::forward<F>(f));
 }
 
-#define tr fn_chain<>();
+#define tfn_chain fn_chain<>()
 // ------------------------------- Monads ---------------------------------->
 enum class maybe_state { normal, empty };
 
@@ -366,6 +366,58 @@ inline auto make(P&&... args) -> T {
 }
 
 /*test code
+
+void test_pipeline()
+{
+	//test define functor, just define functor from function, the prefix is tfn_
+	tfn_add1 ad;  //define a functor
+
+	//test operator|, just surpport lambda, functor, std::function, return the result
+	auto add_one = [](auto a) { return 1 + a; };
+	auto result = 2 | add_one;
+	result = 2 | addone;
+	result = 2 | ad;
+	cout << result << endl;
+	std::function<int(int)> func = std::bind(fn_add_one, std::placeholders::_1);
+	result = 2 | func;
+	result = 2 | std::bind(fn_add_one, std::placeholders::_1);
+
+	//test tuple_apply
+	auto f = [](int x, int y, int z) { return x + y - z; };
+	auto params = make_tuple(1, 2, 3);
+	auto res = tuple_apply(f, params);
+
+	//test curry, left args, right
+	auto curry_fn1 = fn_to_curry_functor(f);
+	result = 3 | curry_fn1 << 1 >> 2; //1, 3, 2
+	result = (curry_fn1 << 1 >> 2 << 3)();
+
+	//test map reduce
+	vector<string> slist = { "one", "two", "three" };
+
+	slist | (map >> [](auto s) { return s.size(); }) 
+		| (reduce >> 0 >> [](auto a, auto b) { return a + b; }) 
+		| [](auto a) { cout << a << endl; };
+
+	//test chain, lazy eval
+	auto chain = tfn_chain | (map >> [](auto s) { return s.size(); })
+		| (reduce >> 0 >> [](auto a, auto b) { return a + b; }) 
+		| ([](int a) { std::cout << a << std::endl; });
+
+	slist | chain;
+
+	//test aop
+	person p = { 20, "tom" };
+	std::function<person(int)> func1 = std::bind(&person::get_person_by_id, &p, std::placeholders::_1);
+	auto testfn = fn_to_curry_functor(func1);
+
+	auto aspect = tfn_chain | ([](int id) { cout << "before"; return id + 1; }) 
+		| func1 
+		| ([](const person& p) { cout << "after" << endl; });
+
+	aspect(1);
+}
+
 void test()
 {
 	using namespace std;
