@@ -366,6 +366,10 @@ inline auto make(P&&... args) -> T {
 }
 
 /*test code
+int fn_add_one(int a) { return 1 + a; }
+int add1(int a) { return 1 + 1; }
+define_functor_type(add1);
+make_globle_curry_functor(addone, fn_add_one);
 
 void test_pipeline()
 {
