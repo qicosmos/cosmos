@@ -1,6 +1,6 @@
 #pragma once
 // Templates as first-class citizens in C++11
-// Example code from http://vitiy.info/templates-as-first-class-citizens-in-cpp11/
+// inspired by http://vitiy.info/templates-as-first-class-citizens-in-cpp11/
 // Written by Victor Laskin (victor.laskin@gmail.com)
 
 
@@ -248,13 +248,13 @@ private:
 	}
 
 	template<typename Arg, std::size_t I, std::size_t... Is>
-	auto call_impl(Arg&& arg, const std::index_sequence<I, Is...>&) const ->decltype(do_something_impl(std::get<I>(functions_)(std::forward<Arg>(arg)), std::index_sequence<Is...>{}))
+	auto call_impl(Arg&& arg, const std::index_sequence<I, Is...>&) const ->decltype(call_impl(std::get<I>(functions_)(std::forward<Arg>(arg)), std::index_sequence<Is...>{}))
 	{
 		return call_impl(std::get<I>(functions_)(std::forward<Arg>(arg)), std::index_sequence<Is...>{});
 	}
 
 	template<typename Arg>
-	auto call(Arg&& arg) const-> decltype(do_something_impl(std::forward<Arg>(arg), std::make_index_sequence<sizeof...(FNs)>{}))
+	auto call(Arg&& arg) const-> decltype(call_impl(std::forward<Arg>(arg), std::make_index_sequence<sizeof...(FNs)>{}))
 	{
 		return call_impl(std::forward<Arg>(arg), std::make_index_sequence<sizeof...(FNs)>{});
 	}
@@ -277,7 +277,7 @@ public:
 	//}
 
 	template <typename Arg>
-	inline auto operator()(Arg&& arg) const -> decltype(do_something(std::forward<Arg>(arg)))
+	inline auto operator()(Arg&& arg) const -> decltype(call(std::forward<Arg>(arg)))
 	{
 		return call(std::forward<Arg>(arg));
 	}
