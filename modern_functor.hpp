@@ -218,7 +218,7 @@ class fn_chain {
 private:
 	const std::tuple<FNs...> functions_;
 	const static size_t TUPLE_SIZE = sizeof...(FNs);
-	
+/*	
 	template <std::size_t N, std::size_t I, typename Arg>
 	struct final_type : final_type<N - 1, I + 1, decltype(std::get<I>(functions_)(std::declval<Arg>())) > {};
 
@@ -240,7 +240,24 @@ private:
 	{
 		return this->call<I + 1>(std::get<I>(functions_)(std::forward<Arg>(arg)));
 	}
+*/
+	template<typename Arg, std::size_t I>
+	auto call_impl(Arg&& arg, const std::index_sequence<I>&) const ->decltype(std::get<I>(functions_)(std::forward<Arg>(arg)))
+	{
+		return std::get<I>(functions_)(std::forward<Arg>(arg));
+	}
 
+	template<typename Arg, std::size_t I, std::size_t... Is>
+	auto call_impl(Arg&& arg, const std::index_sequence<I, Is...>&) const ->decltype(do_something_impl(std::get<I>(functions_)(std::forward<Arg>(arg)), std::index_sequence<Is...>{}))
+	{
+		return call_impl(std::get<I>(functions_)(std::forward<Arg>(arg)), std::index_sequence<Is...>{});
+	}
+
+	template<typename Arg>
+	auto call(Arg&& arg) const-> decltype(do_something_impl(std::forward<Arg>(arg), std::make_index_sequence<sizeof...(FNs)>{}))
+	{
+		return call_impl(std::forward<Arg>(arg), std::make_index_sequence<sizeof...(FNs)>{});
+	}
 public:
 	fn_chain() : functions_(std::tuple<>()) {}
 	fn_chain(std::tuple<FNs...> functions) : functions_(functions) {}
@@ -253,11 +270,16 @@ public:
 	}
 
 	// call whole functional chain
-	template <typename Arg>
-	inline auto operator()(Arg arg) const -> decltype(this->call<0, Arg>(arg))
+	//template <typename Arg>
+	//inline auto operator()(Arg&& arg) const -> decltype(this->call<0, Arg>(std::forward<Arg>(arg)))
+	//{
+	//	return call<0>(std::forward<Arg>(arg));
+	//}
 
+	template <typename Arg>
+	inline auto operator()(Arg&& arg) const -> decltype(do_something(std::forward<Arg>(arg)))
 	{
-		return call<0>(std::forward<Arg>(arg));
+		return call(std::forward<Arg>(arg));
 	}
 };
 
