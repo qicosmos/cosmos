@@ -4,4 +4,4 @@ cosmos
 
 尽自己一份力，让c++的世界变得更美好！
 
-我的博客：http://www.cnblogs.com/qicosmos/
+C++开源社区：http://purecpp.org/
