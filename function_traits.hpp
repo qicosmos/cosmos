@@ -28,6 +28,8 @@ public:
 		static_assert(I < arity, "index is out of range, index must less than sizeof Args");
 		using type = typename std::tuple_element<I, std::tuple<Args...>>::type;
 	};
+	
+	typedef std::tuple<std::remove_cv_t<std::remove_reference_t<Args>>...> tuple_type;
 };
 
 //函数指针.
