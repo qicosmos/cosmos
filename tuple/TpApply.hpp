@@ -89,6 +89,6 @@ namespace detail
 template<typename T, typename... Args>
 int find_index(std::tuple<Args...> const& t, T&& val)
 {
-	return detail::find_index<0, sizeof...(Args) -1, T, Args...>::
+	return detail::find_index<sizeof...(Args) -1, T, Args...>::
 		call(t, std::forward<T>(val));
 }
