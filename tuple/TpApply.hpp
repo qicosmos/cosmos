@@ -66,12 +66,26 @@ typename std::result_of<F(Args...)>::type apply3(F&& pf, tuple<Args...>&&  tup)
 //根据值获取tuple index
 namespace detail
 {
+	template<size_t N, typename Tuple, typename T>
+	static std::enable_if_t<std::is_convertible<std::tuple_element_t<N, Tuple>, T>::value, bool> equal_val(const Tuple& tp, const T& t)
+	{
+		return std::get<N>(tp) == t;
+	}
+
+	template<size_t N, typename Tuple, typename T>
+	static std::enable_if_t<!std::is_convertible<std::tuple_element_t<N, Tuple>, T>::value, bool> equal_val(const Tuple& tp, const T& t)
+	{
+		return false;
+	}
+
 	template<int I, typename T, typename... Args>
 	struct find_index
 	{
 		static int call(std::tuple<Args...> const& t, T&& val)
-		{
-			return (std::get<I - 1>(t) == val) ? I - 1 :
+		{			
+			using U = std::remove_reference_t < std::remove_cv_t<T>>;
+			using V = std::tuple_element_t<I - 1, std::tuple<Args...>>;
+			return (std::is_convertible<U, V>::value&&equal_val<I-1>(t, val)) ? I - 1 :
 				find_index<I - 1, T, Args...>::call(t, std::forward<T>(val));
 		}
 	};
@@ -81,7 +95,9 @@ namespace detail
 	{
 		static int call(std::tuple<Args...> const& t, T&& val)
 		{
-			return (std::get<0>(t) == val) ? 0 : -1;
+			using U = std::remove_reference_t < std::remove_cv_t<T>>;
+			using V = std::tuple_element_t<0, std::tuple<Args...>>;
+			return (std::is_convertible<U, V>::value&&equal_val<0>(t, val)) ? 0 : -1;
 		}
 	};
 }
@@ -89,6 +105,5 @@ namespace detail
 template<typename T, typename... Args>
 int find_index(std::tuple<Args...> const& t, T&& val)
 {
-	return detail::find_index<0, sizeof...(Args) -1, T, Args...>::
-		call(t, std::forward<T>(val));
+	return detail::find_index<sizeof...(Args), T, Args...>::call(t, std::forward<T>(val));
 }
