@@ -1,4 +1,7 @@
 #pragma once
+
+#include <utility>
+
 #define HAS_MEMBER(member)\
 template<typename T, typename... Args>struct has_member_##member\
 {\
@@ -43,14 +46,27 @@ struct Aspect : NonCopyable
 		aspect.After(std::forward<Args>(args)...);//核心逻辑之后的切面逻辑
 	}
 
-	template<typename Head, typename... Tail>
-	void Invoke(Args&&... args, Head&&headAspect, Tail&&... tailAspect)
-	{
-		headAspect.Before(std::forward<Args>(args)...);
-		Invoke(std::forward<Args>(args)..., std::forward<Tail>(tailAspect)...);
-		headAspect.After(std::forward<Args>(args)...);
-	}
+  template <typename Head, typename... Tail>
+  typename std::enable_if<has_member_Before<Head, Args...>::value && has_member_After<Head, Args...>::value>::type
+  Invoke(Args&&... args, Head&& headAspect, Tail&&... tailAspect){
+      headAspect.Before(std::forward<Args>(args)...);
+      Invoke(std::forward<Args>(args)..., std::forward<Tail>(tailAspect)...);
+      headAspect.After(std::forward<Args>(args)...);
+  };
 
+  template <typename Head, typename... Tail>
+  typename std::enable_if<has_member_Before<Head, Args...>::value && !has_member_After<Head, Args...>::value>::type
+  Invoke(Args&&... args, Head&& headAspect, Tail&&... tailAspect){
+      headAspect.Before(std::forward<Args>(args)...);
+      Invoke(std::forward<Args>(args)..., std::forward<Tail>(tailAspect)...);
+  };
+
+  template <typename Head, typename... Tail>
+  typename std::enable_if<!has_member_Before<Head, Args...>::value && has_member_After<Head, Args...>::value>::type
+  Invoke(Args&&... args, Head&& headAspect, Tail&&... tailAspect){
+      Invoke(std::forward<Args>(args)..., std::forward<Tail>(tailAspect)...);
+      headAspect.After(std::forward<Args>(args)...);
+  };
 private:
 	Func m_func; //被织入的函数
 };
