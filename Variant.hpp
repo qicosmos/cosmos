@@ -192,7 +192,7 @@ private:
 
 	void move(const std::type_index& old_t, void *old_v, void *new_v) 
 	{
-        [](){}((move0<Types>(old_t, old_v, new_v), 0)...);
+        [](...){}((move0<Types>(old_t, old_v, new_v), 0)...);
 	}
 
 	template<typename T>
@@ -204,7 +204,7 @@ private:
 
 	void copy(const std::type_index& old_t, const void *old_v, void *new_v)
 	{
-        [](){}((copy0<Types>(old_t, old_v, new_v), 0)...);
+        [](...){}((copy0<Types>(old_t, old_v, new_v), 0)...);
 	}
 
 	template<typename T>
