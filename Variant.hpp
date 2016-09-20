@@ -180,7 +180,7 @@ public:
 private:
 	void destroy(const std::type_index& index, void *buf)
 	{
-        [](Types&&...){}((destroy0<Types>(index, buf), 0)...);
+        [](...){}((destroy0<Types>(index, buf), 0)...);
 	}
 
 	template<typename T>
@@ -192,7 +192,7 @@ private:
 
 	void move(const std::type_index& old_t, void *old_v, void *new_v) 
 	{
-        [](Types&&...){}((move0<Types>(old_t, old_v, new_v), 0)...);
+        [](){}((move0<Types>(old_t, old_v, new_v), 0)...);
 	}
 
 	template<typename T>
@@ -204,7 +204,7 @@ private:
 
 	void copy(const std::type_index& old_t, const void *old_v, void *new_v)
 	{
-        [](Types&&...){}((copy0<Types>(old_t, old_v, new_v), 0)...);
+        [](){}((copy0<Types>(old_t, old_v, new_v), 0)...);
 	}
 
 	template<typename T>
