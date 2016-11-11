@@ -13,7 +13,7 @@ public:
 		using std::placeholders::_1;
 		using std::placeholders::_2;
 
-		using return_type = typename timax::function_traits<Function>::return_type;
+		using return_type = typename timax::function_traits<Function>::result_type;
 
 		this->invokers_[name] = { std::bind(&invoker<Function>::apply, f, _1, _2) };
 	}
