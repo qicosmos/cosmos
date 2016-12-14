@@ -82,6 +82,16 @@
 //#define OBJECT_CONST(t)    std::make_pair(#t, ADD_REFERENCE_CONST(t))
 #define MAKE_NAMES(...) #__VA_ARGS__,
 
+//#define SEPERATOR ,
+//#define CON_STR_1(element1, ...) #element1
+//#define CON_STR_2(element1, ...) #element1 SEPERATOR CON_STR_1(__VA_ARGS__)
+//#define CON_STR_3(element1, ...) #element1 SEPERATOR CON_STR_2(__VA_ARGS__)
+//#define CON_STR_4(element1, ...) #element1 SEPERATOR CON_STR_3(__VA_ARGS__)
+//#define CON_STR_5(element1, ...) #element1 SEPERATOR CON_STR_4(__VA_ARGS__)
+//#define MAKE_STR_LIST(...) \
+//    MACRO_CONCAT(CON_STR, GET_ARG_COUNT(__VA_ARGS__))(__VA_ARGS__)
+//#define get_name(STRUCT_NAME, I) I<arr_##STRUCT_NAME.size()?arr_##STRUCT_NAME[I]:"";
+
 //#define MAKE_TUPLE_CONST(...)   auto tuple() const { return std::make_tuple(__VA_ARGS__); }
 
 //note use MACRO_CONCAT like A##_##B direct may cause marco expand error
