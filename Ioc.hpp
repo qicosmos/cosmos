@@ -84,6 +84,11 @@ struct A
 	{		
 	}
 
+	void Func()
+	{
+		m_ptr->Func();
+	}
+	
 	~A()
 	{
 		if(m_ptr!=nullptr)
