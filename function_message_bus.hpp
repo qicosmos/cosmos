@@ -1,3 +1,10 @@
+#include <string>
+#include <map>
+#include <functional>
+#include <cassert>
+#include "function_traits.hpp"
+#include "type_name.hpp"
+
 struct FnKey {
         std::string key;
     };
