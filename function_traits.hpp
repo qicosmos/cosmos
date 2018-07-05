@@ -30,6 +30,7 @@ public:
 	};
 	
 	typedef std::tuple<std::remove_cv_t<std::remove_reference_t<Args>>...> tuple_type;
+	typedef std::tuple<std::remove_const_t<std::remove_reference_t<Args>>...> bare_tuple_type;
 };
 
 //函数指针.
