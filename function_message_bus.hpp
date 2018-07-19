@@ -42,8 +42,7 @@ struct FnKey {
         {
             std::string key = get_key(std::forward<U>(u), std::forward<Args>(args)...);
             auto it = invokers_.find(key);
-            if (it == invokers_.end())
-                return{};
+            assert(it != invokers_.end());
 
             T t;
             call_impl(it, &t, std::forward<U>(u), std::forward<Args>(args)...);
@@ -56,8 +55,7 @@ struct FnKey {
         {
             std::string key = get_key(std::forward<U>(u), std::forward<Args>(args)...);
             auto it = invokers_.find(key);
-            if (it == invokers_.end())
-                return;
+            assert(it != invokers_.end());
 
             call_impl(it, nullptr, std::forward<U>(u), std::forward<Args>(args)...);
         }
