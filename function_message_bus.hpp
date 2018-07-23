@@ -5,6 +5,11 @@
 #include "function_traits.hpp"
 #include "type_name.hpp"
 
+    template <typename... Args, typename Func, std::size_t... Idx>
+    void for_each(const std::tuple<Args...>& t, Func&& f, std::index_sequence<Idx...>) {
+        (void)std::initializer_list<int> { (f(std::get<Idx>(t)), void(), 0)...};
+    }
+    
 struct FnKey {
         std::string key;
     };
