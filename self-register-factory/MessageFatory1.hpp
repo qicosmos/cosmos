@@ -18,7 +18,7 @@ struct factory
 		template<typename... Args>
 		register_t(const std::string& key, Args... args)
 		{
-			factory::get().map_.emplace(key, [&] { return new T(args...); });
+			factory::get().map_.emplace(key, [=] { return new T(args...); });
 		}
 		inline static Message* create() { return new T; }
 	};
