@@ -172,6 +172,7 @@ struct FnKey {
             call(const F& f, const std::tuple<Args...>& tp, void* result)
             {
                 auto r = call_helper(f, std::make_index_sequence<sizeof... (Args)>{}, tp);
+                if(result)
                 *(decltype(r)*)result = r;
             }
 
@@ -201,6 +202,7 @@ struct FnKey {
             static void call_mem(F f, Self* self, const std::tuple<Args...>& tp, void* result, std::false_type)
             {
                 auto r = call_member_helper(f, self, std::make_index_sequence<sizeof...(Args)>{}, tp);
+                if(result)
                 *(decltype(r)*)result = r;
             }
 
