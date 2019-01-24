@@ -45,6 +45,16 @@ struct Any
 		return *this;
 	}
 
+    Any& operator=(Any&& a)
+    {
+        if (m_ptr == a.m_ptr)
+            return *this;
+
+        m_ptr = std::move(a.m_ptr);
+        m_tpIndex = a.m_tpIndex;
+        return *this;
+    }
+
 private:
 	struct Base;
 	typedef std::unique_ptr<Base> BasePtr;
